@@ -339,12 +339,6 @@ sudo -u "$name" mkdir -p "/home/$name/.cache/zsh/"
 sudo -u "$name" mkdir -p "/home/$name/.config/abook/"
 sudo -u "$name" mkdir -p "/home/$name/.config/mpd/playlists/"
 
-# dbus UUID must be generated for Artix runit.
-dbus-uuidgen >/var/lib/dbus/machine-id
-
-# Use system notifications for Brave on Artix
-echo "export \$(dbus-launch)" >/etc/profile.d/dbus.sh
-
 # Enable tap to click
 [ ! -f /etc/X11/xorg.conf.d/40-libinput.conf ] && printf 'Section "InputClass"
         Identifier "libinput touchpad catchall"
@@ -354,6 +348,16 @@ echo "export \$(dbus-launch)" >/etc/profile.d/dbus.sh
 	# Enable left mouse button by tapping
 	Option "Tapping" "on"
 EndSection' >/etc/X11/xorg.conf.d/40-libinput.conf
+
+# Use rofi instead of dmenu_run
+printf '#!/bin/sh
+rofi -show drun -show-icons'>/usr/local/bin/dmenu_run
+
+# DBUS fix
+[ ! -f /etc/X11/xinit/xinitrc.d/50-systemd-user.sh] && printf 'systemctl --user import-environment DISPLAY XAUTHORITY
+if command -v dbus-update-activation-environment >/dev/null 2>&1; then
+    dbus-update-activation-environment DISPLAY XAUTHORITY
+fi'>/etc/X11/xinit/xinitrc.d/50-systemd-user.sh
 
 # All this below to get Librewolf installed with add-ons and non-bad settings.
 
