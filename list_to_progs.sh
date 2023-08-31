@@ -8,5 +8,7 @@ while read package; do
 	if pacman -Qm $package &> /dev/null; then
 		flag=A
 	fi
-	echo $flag,$package,\"$desc.\" >> procs.csv
+	echo $flag,$package,\"$desc.\" >> progs.csv
 done < install.txt
+
+echo "" > install.txt
