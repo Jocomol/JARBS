@@ -233,7 +233,7 @@ Exec=/usr/local/lib/arkenfox-auto-update" > /etc/pacman.d/hooks/arkenfox.hook
 }
 
 installffaddons(){
-	addonlist="ublock-origin decentraleyes istilldontcareaboutcookies vim-vixen"
+	addonlist="ublock-origin decentraleyes istilldontcareaboutcookies vim-vixen bitwarden"
 	addontmp="$(mktemp -d)"
 	trap "rm -fr $addontmp" HUP INT QUIT TERM PWR EXIT
 	IFS=' '
@@ -323,8 +323,15 @@ installationloop
 
 # Install the dotfiles in the user's home directory, but remove .git dir and
 # other unnecessary files.
-putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
-rm -rf "/home/$name/.git/" "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
+
+chezmoi init $dotfilesrepo
+cd /home/$name/.local/share/chezmoi
+git checkout chezmoi
+git pull
+cd -
+#TODO Ensure that bitwarden is unlocked at this moment
+chezmoi apply -v
+
 
 # Install vim plugins if not alread present.
 [ ! -f "/home/$name/.config/nvim/autoload/plug.vim" ] && vimplugininstall
@@ -377,7 +384,7 @@ pdir="$browserdir/$profile"
 [ -d "$pdir" ] && installffaddons
 
 # Kill the now unnecessary librewolf instance.
-pkill -u "$name" librewolf
+pkill -u "$name" firefox
 
 # Allow wheel users to sudo with password and allow several system commands
 # (like `shutdown` to run without password).
